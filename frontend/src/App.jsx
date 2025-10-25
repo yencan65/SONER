@@ -15,6 +15,7 @@ export default function App() {
     setLoading(true);
     setError(null);
     try {
+      
       const response = await axios.get(`${API_URL}/api/search?q=${query}`);
       setResults(response.data.results || []);
     } catch (err) {
@@ -22,6 +23,7 @@ export default function App() {
       setError("Sunucuya bağlanılamadı, lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
+      
     }
   };
 
