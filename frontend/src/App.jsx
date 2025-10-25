@@ -1,40 +1,60 @@
-import React from 'react';
-import { FaRegHandPeace } from 'react-icons/fa';
+import React, { useState } from "react";
+import axios from "axios";
 
-export default function App() {
+const App = () => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`${API_URL}/api/search?q=${query}`);
+      setResults(response.data.results || []);
+    } catch (err) {
+      console.error(err);
+      setError("Sunucuya bağlanılamadı, lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-      {/* Sol üst logo: FindAllEasy + 3D parmak simgesi + yıldız alanı */}
-      <div style={{
-        position:'fixed', top:20, left:28, display:'flex', alignItems:'center', gap:10, zIndex:1000
-      }}>
-        <span style={{
-          fontWeight:700, fontSize:24, color:'#00BFFF',
-          textShadow:'0 0 8px rgba(0,191,255,.6)'
-        }}>FindAllEasy</span>
-        <FaRegHandPeace size={32} style={{ filter:'drop-shadow(0 0 8px rgba(255,215,0,.8))' }}/>
-        {/* ileride animasyonlu yıldız bileşeni buraya eklenecek */}
+    <div className="min-h-screen flex flex-col items-center justify-center text-center">
+      <h1 className="text-3xl font-bold mb-4 text-blue-600">FindAllEasy 🌍</h1>
+      <input
+        type="text"
+        placeholder="Ne arıyorsun?"
+        className="border rounded-lg px-4 py-2 w-80 text-center"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+      />
+      <button
+        onClick={handleSearch}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+      >
+        Ara
+      </button>
+
+      {loading && <p className="mt-4 text-gray-500">Yükleniyor...</p>}
+      {error && <p className="mt-4 text-red-500">{error}</p>}
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {results.map((item, index) => (
+          <div key={index} className="border rounded-xl p-4 shadow">
+            <h3 className="font-semibold">{item.name || "Ürün"}</h3>
+            <p>{item.price ? `${item.price} ₺` : "Fiyat bilgisi yok"}</p>
+          </div>
+        ))}
       </div>
-
-      {/* Kahraman alanı */}
-      <main style={{
-        minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-        background:'linear-gradient(120deg,#001F3F,#072B57,#0ea5e9)', color:'#fff', textAlign:'center'
-      }}>
-        <h1 style={{ fontSize:44, marginBottom:8 }}>Yazman yeterli, gerisini biz hallederiz.</h1>
-
-        <div style={{ display:'flex', gap:8, marginTop:14 }}>
-          <input placeholder="Ne arıyorsun?" style={{ padding:'10px 12px', width:360, borderRadius:10, border:'none' }} />
-          <button style={{
-            background:'#00BFFF', color:'#fff', border:'none', padding:'10px 16px', borderRadius:10, fontWeight:700, cursor:'pointer'
-          }}>Ara</button>
-        </div>
-
-        <footer style={{ position:'absolute', bottom:18, fontSize:12, opacity:.9 }}>
-          ©2025 Yapay zeka destekli global fiyat karşılaştırma asistanın.
-          Güvenilir satıcıyla birlikte en uygun fiyatı senin için bulur. Parmak şıklatman yeter.
-        </footer>
-      </main>
-    </>
+    </div>
   );
-}
+};
+
+export default App;
