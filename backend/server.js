@@ -1,18 +1,19 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
+import express from "express";
+import cors from "cors";
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.get('/health', (_req, res) => res.json({ ok: true }));
-
-// örnek arama endpoint'i
-app.get('/api/search', async (req, res) => {
-  const q = (req.query.q || '').toString();
-  // TODO: senin gerçek arama mantığın
-  res.json({ query: q, results: [] });
+app.get("/api/search", (req, res) => {
+  const q = req.query.q || "";
+  res.json({
+    query: q,
+    results: [
+      { name: "Deneme ürünü 1", price: 199 },
+      { name: "Deneme ürünü 2", price: 299 },
+    ],
+  });
 });
 
 const PORT = process.env.PORT || 10000;
